@@ -87,7 +87,7 @@
   <!-- 5. 第五步：排隊配對中 -->
   <div id="view-loading" class="hidden" style="text-align: center;">
     <h2>🌀 伺服器排隊中</h2>
-    <div class="subtitle">正在向系統登記名額，請勿關閉視窗...</div>
+    <div class="subtitle">正在向試算表登記名額，請勿關閉視窗...</div>
     <div class="timer">⏳</div>
   </div>
 
@@ -101,13 +101,12 @@
 
 <script>
   // =========================================================================
-  // ⏰【修改開搶時間請改這裡】
-  // 格式：年-月-日T時:分:秒（24小時制，例如中午 12:00:00）
+  // ⏰【開搶時間設定區】（第 107 行）
   // =========================================================================
-  const TARGET_TIME = new Date("2026-08-19T01:43:00").getTime();
+  const TARGET_TIME = new Date("2026-08-19T12:00:00").getTime();
 
-  // 若有 Google Apps Script Web App 接收網址可填在引號內，沒有留空即可
-  const GOOGLE_SHEET_URL = "";
+  // 🔗【試算表串接網址】（第 110 行）
+  const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzUgB6Za-3HbKIMuLMn4lLWoIcYqSy-3vWhV2vm0M7_SaksHNN7ua8TPl_nKRHiGpGP/exec";
 
   // 18 個工作職缺清單
   const items = [
@@ -248,7 +247,7 @@
             <strong>登記姓名：</strong>${currentUserName}<br>
             <strong>錄取工作：</strong>${selectedItem}<br>
             <strong>登記序號：</strong>${orderId}<br>
-            <strong>狀態：</strong>名額已確認登記！
+            <strong>狀態：</strong>名額已成功寫入 Google 試算表！
           `;
           actionBtn.innerText = '完成並重新開始';
           actionBtn.style.background = '#2ed573';
