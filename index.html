@@ -8,9 +8,6 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 16px; }
   .card { background: #1e1e1e; border-radius: 16px; padding: 24px; width: 100%; max-width: 460px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); position: relative; border: 1px solid #333; }
-  
-  .config-toggle { position: absolute; top: 18px; right: 18px; background: transparent; border: 1px solid #555; color: #aaa; padding: 4px 10px; border-radius: 20px; font-size: 13px; cursor: pointer; }
-  .config-toggle:hover { border-color: #2ed573; color: #2ed573; }
 
   h2 { font-size: 22px; margin-bottom: 6px; color: #ffffff; text-align: center; }
   .subtitle { font-size: 13px; color: #888; text-align: center; margin-bottom: 16px; }
@@ -24,13 +21,11 @@
   button:disabled { background: #333 !important; color: #666 !important; cursor: not-allowed; transform: none !important; }
 
   label { display: block; font-size: 13px; color: #bbb; margin-top: 10px; margin-bottom: 4px; }
-  input, textarea { width: 100%; padding: 11px; border-radius: 8px; border: 1px solid #444; background: #2a2a2a; color: #fff; font-size: 15px; }
-  textarea { resize: vertical; min-height: 120px; font-family: inherit; line-height: 1.5; }
-  input:focus, textarea:focus { outline: none; border-color: #2ed573; }
+  input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #2a2a2a; color: #fff; font-size: 16px; }
+  input:focus { outline: none; border-color: #2ed573; }
   
   .target-grid { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; max-height: 320px; overflow-y: auto; padding-right: 4px; }
   .target-grid::-webkit-scrollbar { width: 6px; }
-  .target-grid::-webkit-scrollbar-track { background: #222; border-radius: 4px; }
   .target-grid::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
   
   .target-item { background: #2a2a2a; border: 2px solid #3a3a3a; border-radius: 8px; padding: 10px 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 14px; transition: 0.15s; }
@@ -47,55 +42,22 @@
 <body>
 
 <div class="card">
-  <button class="config-toggle" id="btn-toggle-config" onclick="toggleConfig()">⚙️ 教師設定</button>
 
-  <!-- 1. 設定面板 -->
-  <div id="view-config" class="hidden">
-    <h2>🎯 自訂搶選與試算表串接</h2>
-    <div class="subtitle">設定開搶時間、題目與試算表接收網址</div>
-
-    <label>活動標題：</label>
-    <input type="text" id="cfg-title" value="球賽裁判與工作人員搶選" />
-
-    <label>副標題 / 規則：</label>
-    <input type="text" id="cfg-subtitle" value="統一準點開搶 · 總計 18 個名額 · 每人限搶 1 項" />
-
-    <label>Google 試算表 Web App 網址：</label>
-    <input type="text" id="cfg-sheet-url" />
-
-    <label>統一開始時間：</label>
-    <input type="datetime-local" id="cfg-start-time" />
-
-    <label>職缺項目（共 18 個名額，一行一項）：</label>
-    <textarea id="cfg-items"></textarea>
-
-    <label>防機器人考題：</label>
-    <input type="text" id="cfg-question" value="1+1=？" />
-
-    <label>考題答案（不分大小寫）：</label>
-    <input type="text" id="cfg-answer" value="2" />
-
-    <label>教師管理密碼：</label>
-    <input type="text" id="cfg-admin-pwd" value="8888" />
-
-    <button class="action-btn" onclick="saveConfig()">儲存設定並返回</button>
-  </div>
-
-  <!-- 2. 第一步：實名登記 -->
+  <!-- 1. 第一步：實名登記 -->
   <div id="view-auth">
-    <h2 id="login-title">球賽裁判與工作人員搶選</h2>
-    <div class="subtitle" id="login-subtitle">可先完成姓名登記進入候選室等候</div>
+    <h2>球賽裁判與工作人員搶選</h2>
+    <div class="subtitle">準點統一開搶 · 總計 18 個名額</div>
 
     <label>學生姓名：</label>
     <input type="text" id="student-name" placeholder="請輸入姓名" autofocus />
 
-    <button class="action-btn" onclick="submitAuth()">進入等候室</button>
+    <button class="action-btn" onclick="submitAuth()">進入候選等候室</button>
   </div>
 
-  <!-- 3. 第二步：同步倒數等候室 -->
+  <!-- 2. 第二步：同步倒數等候室 -->
   <div id="view-countdown" class="hidden">
     <div class="student-badge" id="badge-info"></div>
-    <h2 id="display-title">等候系統開啟</h2>
+    <h2>等候系統開啟</h2>
     <div class="subtitle" id="target-time-label">距離開搶時間還剩</div>
     
     <div class="timer-box">
@@ -106,30 +68,30 @@
     <button class="action-btn" id="btn-enter" disabled onclick="startSelectTarget()">等待時間到達...</button>
   </div>
 
-  <!-- 4. 第三步：挑選 18 個名額 -->
+  <!-- 3. 第三步：挑選 18 個名額 -->
   <div id="view-select" class="hidden">
     <h2>🔥 選擇工作職務</h2>
-    <div class="subtitle">滑動挑選目標工作（共 <span id="item-count">18</span> 個名額）</div>
+    <div class="subtitle">滑動挑選目標工作（共 18 個名額）</div>
     <div class="target-grid" id="target-list"></div>
     <button class="action-btn" id="btn-confirm-target" disabled onclick="enterCaptcha()">確認選定此職務</button>
   </div>
 
-  <!-- 5. 第四步：防機器人驗證 -->
+  <!-- 4. 第四步：防機器人驗證 -->
   <div id="view-captcha" class="hidden">
     <h2>🤖 防機器人手速驗證</h2>
-    <div class="subtitle" id="captcha-question">請回答問題以完成搶選</div>
-    <input type="text" id="captcha-input" placeholder="請在此輸入答案..." autofocus />
+    <div class="subtitle">請回答問題以完成搶選：1+1=？</div>
+    <input type="text" id="captcha-input" placeholder="請輸入答案..." autofocus />
     <button class="action-btn" onclick="verifyAnswer()">送出搶選</button>
   </div>
 
-  <!-- 6. 第五步：排隊配對與資料上傳中 -->
+  <!-- 5. 第五步：排隊配對中 -->
   <div id="view-loading" class="hidden" style="text-align: center;">
-    <h2>🌀 伺服器同步中</h2>
-    <div class="subtitle">正在向老師的試算表登記名額，請勿關閉視窗...</div>
+    <h2>🌀 伺服器排隊中</h2>
+    <div class="subtitle">正在向系統登記名額，請勿關閉視窗...</div>
     <div class="timer">⏳</div>
   </div>
 
-  <!-- 7. 第六步：結果畫面 -->
+  <!-- 6. 第六步：結果畫面 -->
   <div id="view-result" class="hidden" style="text-align: center;">
     <h2 id="result-status"></h2>
     <div class="status-box" id="result-details"></div>
@@ -138,7 +100,17 @@
 </div>
 
 <script>
-  const defaultItems = [
+  // =========================================================================
+  // ⏰【修改開搶時間請改這裡】
+  // 格式：年-月-日T時:分:秒（24小時制，例如中午 12:00:00）
+  // =========================================================================
+  const TARGET_TIME = new Date("2026-08-19T12:00:00").getTime();
+
+  // 若有 Google Apps Script Web App 接收網址可填在引號內，沒有留空即可
+  const GOOGLE_SHEET_URL = "";
+
+  // 18 個工作職缺清單
+  const items = [
     '01. 檢錄、計分(排) [名額 1/3]',
     '02. 檢錄、計分(排) [名額 2/3]',
     '03. 檢錄、計分(排) [名額 3/3]',
@@ -159,49 +131,18 @@
     '18. 檢錄(羽)+租借記分板 [名額 3/3]'
   ];
 
-  function getDefaultTargetTime() {
-    const d = new Date();
-    d.setHours(12, 0, 0, 0);
-    if (d.getTime() < Date.now()) {
-      d.setDate(d.getDate() + 1);
-    }
-    const pad = n => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T12:00`;
-  }
-
-  // 已內嵌你的專屬 Google 試算表 Web App 網址
-  const defaultConfig = {
-    title: '球賽裁判與工作人員搶選',
-    subtitle: '統一準點開搶 · 總計 18 個名額 · 每人限搶 1 項',
-    sheetUrl: 'https://script.google.com/macros/s/AKfycbzUgB6Za-3HbKIMuLMn4lLWoIcYqSy-3vWhV2vm0M7_SaksHNN7ua8TPl_nKRHiGpGP/exec',
-    items: defaultItems,
-    question: '1+1=？',
-    answer: '2',
-    targetTime: getDefaultTargetTime(),
-    adminPwd: '8888'
-  };
-
-  let config = JSON.parse(localStorage.getItem('rush_sports_sheet_sync_v2')) || defaultConfig;
   let timerInterval = null;
   let selectedItem = null;
   let currentUserName = '';
 
-  function init() {
-    document.getElementById('login-title').innerText = config.title;
-    document.getElementById('login-subtitle').innerText = config.subtitle;
-    document.getElementById('display-title').innerText = config.title;
-    document.getElementById('captcha-question').innerText = config.question;
-    document.getElementById('item-count').innerText = config.items.length;
-  }
-
   function submitAuth() {
-    const studentName = document.getElementById('student-name').value.trim();
-    if (!studentName) {
-      alert('請務必填寫「姓名」才能進入候選等候室！');
+    const name = document.getElementById('student-name').value.trim();
+    if (!name) {
+      alert('請務必填寫「姓名」才能進入等候室！');
       return;
     }
-    currentUserName = studentName;
-    document.getElementById('badge-info').innerText = `👤 登記人員：${studentName}`;
+    currentUserName = name;
+    document.getElementById('badge-info').innerText = `👤 登記人員：${name}`;
 
     document.getElementById('view-auth').classList.add('hidden');
     document.getElementById('view-countdown').classList.remove('hidden');
@@ -210,12 +151,10 @@
 
   function startRealTimeCountdown() {
     clearInterval(timerInterval);
-    const targetTimestamp = new Date(config.targetTime).getTime();
     const btnEnter = document.getElementById('btn-enter');
 
     function update() {
-      const now = Date.now();
-      const diff = targetTimestamp - now;
+      const diff = TARGET_TIME - Date.now();
 
       if (diff <= 0) {
         clearInterval(timerInterval);
@@ -237,10 +176,6 @@
       document.getElementById('timer-display').innerText = `${pad(hours)}:${pad(mins)}:${pad(secs)}.${tenths}`;
     }
 
-    btnEnter.disabled = true;
-    btnEnter.innerText = '等待時間到達...';
-    btnEnter.style.background = '#333';
-    btnEnter.style.color = '#666';
     update();
     timerInterval = setInterval(update, 80);
   }
@@ -254,7 +189,7 @@
     selectedItem = null;
     document.getElementById('btn-confirm-target').disabled = true;
 
-    config.items.forEach((item) => {
+    items.forEach((item) => {
       const div = document.createElement('div');
       div.className = 'target-item';
       div.innerHTML = `<span>${item}</span><span class="target-badge">名額：1</span>`;
@@ -276,18 +211,16 @@
   }
 
   function verifyAnswer() {
-    const input = document.getElementById('captcha-input').value.trim().toLowerCase();
-    const correct = config.answer.trim().toLowerCase();
-
-    if (input === correct) {
+    const input = document.getElementById('captcha-input').value.trim();
+    if (input === '2') {
       document.getElementById('view-captcha').classList.add('hidden');
       document.getElementById('view-loading').classList.remove('hidden');
 
       const orderId = '#' + Math.floor(1000 + Math.random() * 9000);
       const isSuccess = Math.random() > 0.3;
 
-      if (isSuccess && config.sheetUrl) {
-        fetch(config.sheetUrl, {
+      if (isSuccess && GOOGLE_SHEET_URL) {
+        fetch(GOOGLE_SHEET_URL, {
           method: 'POST',
           mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
@@ -297,7 +230,7 @@
             orderId: orderId,
             timestamp: new Date().toLocaleString("zh-TW", {hour12: false})
           })
-        }).catch(err => console.log('Sheet upload log:', err));
+        }).catch(err => console.log(err));
       }
 
       setTimeout(() => {
@@ -315,7 +248,7 @@
             <strong>登記姓名：</strong>${currentUserName}<br>
             <strong>錄取工作：</strong>${selectedItem}<br>
             <strong>登記序號：</strong>${orderId}<br>
-            <strong>狀態：</strong>名額已確認並自動同步至老師的試算表！
+            <strong>狀態：</strong>名額已確認登記！
           `;
           actionBtn.innerText = '完成並重新開始';
           actionBtn.style.background = '#2ed573';
@@ -332,7 +265,7 @@
         }
       }, 1500);
     } else {
-      alert('驗證答案錯誤，請重新作答！');
+      alert('驗證答案錯誤，請重新輸入！');
       document.getElementById('captcha-input').value = '';
       document.getElementById('captcha-input').focus();
     }
@@ -345,59 +278,7 @@
 
     document.querySelectorAll('[id^="view-"]').forEach(v => v.classList.add('hidden'));
     document.getElementById('view-auth').classList.remove('hidden');
-    init();
   }
-
-  function toggleConfig() {
-    const configView = document.getElementById('view-config');
-    const isShowing = !configView.classList.contains('hidden');
-
-    if (isShowing) {
-      configView.classList.add('hidden');
-      handleResultAction();
-    } else {
-      const enteredPwd = prompt('請輸入教師管理密碼以修改設定：');
-      if (enteredPwd !== (config.adminPwd || '8888')) {
-        alert('密碼錯誤！無法開啟設定。');
-        return;
-      }
-
-      clearInterval(timerInterval);
-      document.querySelectorAll('[id^="view-"]').forEach(v => v.classList.add('hidden'));
-      configView.classList.remove('hidden');
-
-      document.getElementById('cfg-title').value = config.title;
-      document.getElementById('cfg-subtitle').value = config.subtitle;
-      document.getElementById('cfg-sheet-url').value = config.sheetUrl || '';
-      document.getElementById('cfg-start-time').value = config.targetTime;
-      document.getElementById('cfg-items').value = config.items.join('\n');
-      document.getElementById('cfg-question').value = config.question;
-      document.getElementById('cfg-answer').value = config.answer;
-      document.getElementById('cfg-admin-pwd').value = config.adminPwd || '8888';
-    }
-  }
-
-  function saveConfig() {
-    const itemsRaw = document.getElementById('cfg-items').value.trim();
-    const itemsArray = itemsRaw.split('\n').map(i => i.trim()).filter(i => i.length > 0);
-
-    config = {
-      title: document.getElementById('cfg-title').value || '球賽裁判與工作人員搶選',
-      subtitle: document.getElementById('cfg-subtitle').value || '',
-      sheetUrl: document.getElementById('cfg-sheet-url').value.trim() || '',
-      targetTime: document.getElementById('cfg-start-time').value || getDefaultTargetTime(),
-      items: itemsArray.length > 0 ? itemsArray : defaultItems,
-      question: document.getElementById('cfg-question').value || '1+1=?',
-      answer: document.getElementById('cfg-answer').value || '2',
-      adminPwd: document.getElementById('cfg-admin-pwd').value || '8888'
-    };
-
-    localStorage.setItem('rush_sports_sheet_sync_v2', JSON.stringify(config));
-    document.getElementById('view-config').classList.add('hidden');
-    handleResultAction();
-  }
-
-  init();
 </script>
 </body>
 </html>
