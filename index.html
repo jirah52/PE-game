@@ -56,6 +56,7 @@
   .text-success { color: #2ed573; }
   .text-fail { color: #ff4757; }
   .status-box { background: #2a2a2a; padding: 16px; border-radius: 8px; margin: 14px 0; font-size: 14px; line-height: 1.7; text-align: left; }
+  .thank-you-msg { margin-top: 15px; padding: 12px; background: rgba(46, 213, 115, 0.1); border: 1px dashed #2ed573; border-radius: 8px; color: #2ed573; font-weight: bold; text-align: center; }
 </style>
 </head>
 <body>
@@ -114,17 +115,17 @@
   <div id="view-result" class="hidden" style="text-align: center;">
     <h2 id="result-status"></h2>
     <div class="status-box" id="result-details"></div>
-    <button class="action-btn" id="btn-result-action" onclick="handleResultAction()">回到首頁</button>
+    <button class="action-btn" id="btn-result-action" onclick="handleRetryAction()">🔄 重新選擇其他職缺</button>
   </div>
 </div>
 
 <script>
   // =========================================================================
-  // ⏰【開搶時間設定區】（第 128 行）
+  // ⏰【開搶時間設定區】（第 129 行）
   // =========================================================================
-  const TARGET_TIME = new Date("2026-08-19T02:18:00").getTime();
+  const TARGET_TIME = new Date("2026-08-19T02:20:00").getTime();
 
-  // 🔗【試算表串接網址】（第 131 行）
+  // 🔗【試算表串接網址】（第 132 行）
   const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyhKu2WQV2xOCsNFDTJryBXPmzrFVKXC3-zXFkEYG7_EFLPGGoRM4zrHO3BjhE0I-9R/exec";
 
   // 9 大項目與名額設定（總計 18 位）
@@ -157,8 +158,6 @@
     document.getElementById('view-auth').classList.add('hidden');
     document.getElementById('view-countdown').classList.remove('hidden');
     startRealTimeCountdown();
-    
-    // 背景預先載入最新名額
     fetchCounts();
   }
 
@@ -231,14 +230,12 @@
       const div = document.createElement('div');
       
       if (isFull) {
-        // 已額滿：暗掉並顯示紅色已額滿
         div.className = 'target-item disabled';
         div.innerHTML = `
           <span><strong>${job.name}</strong> [總名額 ${job.total} 位]</span>
           <span class="target-badge taken-badge">已額滿 ❌</span>
         `;
       } else {
-        // 尚有名額：顯示綠框剩餘名額
         div.className = 'target-item';
         div.innerHTML = `
           <span><strong>${job.name}</strong> [總名額 ${job.total} 位]</span>
@@ -306,40 +303,38 @@
       const actionBtn = document.getElementById('btn-result-action');
 
       if (isSuccess) {
+        // ✅ 搶選成功：直接終止流程，隱藏重選按鈕，顯示感謝訊息
         statusEl.innerText = '🎉 搶選成功！';
         statusEl.className = 'text-success';
         detailEl.innerHTML = `
           <strong>登記姓名：</strong>${currentUserName}<br>
           <strong>錄取工作：</strong>${selectedItem}<br>
           <strong>登記序號：</strong>${orderId}<br>
-          <strong>狀態：</strong>名額已確認並成功寫入試算表！
+          <strong>登記狀態：</strong>名額已確認並成功寫入試算表！
+          <div class="thank-you-msg">✨ 謝謝你的配合，登記已順利完成！<br>請直接關閉此視窗。</div>
         `;
-        actionBtn.innerText = '完成並回到首頁';
-        actionBtn.style.background = '#2ed573';
+        actionBtn.style.display = 'none'; // 隱藏按鈕，禁止再次選擇
       } else {
+        // ❌ 搶選失敗（額滿）：保留重選按鈕
         statusEl.innerText = '😭 殘念！該職缺名額已滿';
         statusEl.className = 'text-fail';
         detailEl.innerHTML = `
           <strong>${currentUserName}</strong> 同學：<br>
-          您所選擇的 <strong>${selectedItem}</strong> 剩餘名額剛好被搶完了！<br><br>
+          您所選擇的 <strong>${selectedItem}</strong> 剩餘名額剛好被其他人搶先登記！<br><br>
           <span style="color:#ff4757;">⚠️ 請點擊下方按鈕重新挑選其他剩餘職缺。</span>
         `;
+        actionBtn.style.display = 'block';
         actionBtn.innerText = '🔄 重新選擇其他職缺';
         actionBtn.style.background = '#ff4757';
       }
     }, 800);
   }
 
-  function handleResultAction() {
+  function handleRetryAction() {
     selectedItem = null;
     document.querySelectorAll('[id^="view-"]').forEach(v => v.classList.add('hidden'));
-    
-    if (currentUserName) {
-      document.getElementById('view-select').classList.remove('hidden');
-      startSelectTarget();
-    } else {
-      document.getElementById('view-auth').classList.remove('hidden');
-    }
+    document.getElementById('view-select').classList.remove('hidden');
+    startSelectTarget();
   }
 </script>
 </body>
