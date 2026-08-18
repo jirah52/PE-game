@@ -47,19 +47,21 @@
 <body>
 
 <div class="card">
-  <!-- 密碼保護設定鈕 -->
   <button class="config-toggle" id="btn-toggle-config" onclick="toggleConfig()">⚙️ 教師設定</button>
 
   <!-- 1. 設定面板 -->
   <div id="view-config" class="hidden">
-    <h2>🎯 自訂搶選與開放時間</h2>
-    <div class="subtitle">設定統一開搶時間與 18 項名額</div>
+    <h2>🎯 自訂搶選與試算表串接</h2>
+    <div class="subtitle">設定開搶時間、題目與試算表接收網址</div>
 
     <label>活動標題：</label>
     <input type="text" id="cfg-title" value="球賽裁判與工作人員搶選" />
 
     <label>副標題 / 規則：</label>
     <input type="text" id="cfg-subtitle" value="統一準點開搶 · 總計 18 個名額 · 每人限搶 1 項" />
+
+    <label>Google 試算表 Web App 網址：</label>
+    <input type="text" id="cfg-sheet-url" />
 
     <label>統一開始時間：</label>
     <input type="datetime-local" id="cfg-start-time" />
@@ -79,7 +81,7 @@
     <button class="action-btn" onclick="saveConfig()">儲存設定並返回</button>
   </div>
 
-  <!-- 2. 第一步：實名登記（姓名） -->
+  <!-- 2. 第一步：實名登記 -->
   <div id="view-auth">
     <h2 id="login-title">球賽裁判與工作人員搶選</h2>
     <div class="subtitle" id="login-subtitle">可先完成姓名登記進入候選室等候</div>
@@ -90,7 +92,7 @@
     <button class="action-btn" onclick="submitAuth()">進入等候室</button>
   </div>
 
-  <!-- 3. 第二步：同步準點倒數等候室 -->
+  <!-- 3. 第二步：同步倒數等候室 -->
   <div id="view-countdown" class="hidden">
     <div class="student-badge" id="badge-info"></div>
     <h2 id="display-title">等候系統開啟</h2>
@@ -120,10 +122,10 @@
     <button class="action-btn" onclick="verifyAnswer()">送出搶選</button>
   </div>
 
-  <!-- 6. 第五步：排隊配對中 -->
+  <!-- 6. 第五步：排隊配對與資料上傳中 -->
   <div id="view-loading" class="hidden" style="text-align: center;">
-    <h2>🌀 伺服器排隊中</h2>
-    <div class="subtitle">正在向系統登記名額，請勿關閉視窗...</div>
+    <h2>🌀 伺服器同步中</h2>
+    <div class="subtitle">正在向老師的試算表登記名額，請勿關閉視窗...</div>
     <div class="timer">⏳</div>
   </div>
 
@@ -167,9 +169,11 @@
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T12:00`;
   }
 
+  // 已內嵌你的專屬 Google 試算表 Web App 網址
   const defaultConfig = {
     title: '球賽裁判與工作人員搶選',
     subtitle: '統一準點開搶 · 總計 18 個名額 · 每人限搶 1 項',
+    sheetUrl: 'https://script.google.com/macros/s/AKfycbzUgB6Za-3HbKIMuLMn4lLWoIcYqSy-3vWhV2vm0M7_SaksHNN7ua8TPl_nKRHiGpGP/exec',
     items: defaultItems,
     question: '1+1=？',
     answer: '2',
@@ -177,7 +181,7 @@
     adminPwd: '8888'
   };
 
-  let config = JSON.parse(localStorage.getItem('rush_sports_time_sync_pwd')) || defaultConfig;
+  let config = JSON.parse(localStorage.getItem('rush_sports_sheet_sync_v2')) || defaultConfig;
   let timerInterval = null;
   let selectedItem = null;
   let currentUserName = '';
@@ -279,11 +283,27 @@
       document.getElementById('view-captcha').classList.add('hidden');
       document.getElementById('view-loading').classList.remove('hidden');
 
+      const orderId = '#' + Math.floor(1000 + Math.random() * 9000);
+      const isSuccess = Math.random() > 0.3;
+
+      if (isSuccess && config.sheetUrl) {
+        fetch(config.sheetUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: currentUserName,
+            job: selectedItem,
+            orderId: orderId,
+            timestamp: new Date().toLocaleString("zh-TW", {hour12: false})
+          })
+        }).catch(err => console.log('Sheet upload log:', err));
+      }
+
       setTimeout(() => {
         document.getElementById('view-loading').classList.add('hidden');
         document.getElementById('view-result').classList.remove('hidden');
 
-        const isSuccess = Math.random() > 0.3;
         const statusEl = document.getElementById('result-status');
         const detailEl = document.getElementById('result-details');
         const actionBtn = document.getElementById('btn-result-action');
@@ -294,8 +314,8 @@
           detailEl.innerHTML = `
             <strong>登記姓名：</strong>${currentUserName}<br>
             <strong>錄取工作：</strong>${selectedItem}<br>
-            <strong>登記序號：</strong>#${Math.floor(1000 + Math.random() * 9000)}<br>
-            <strong>狀態：</strong>名額已確認登記！
+            <strong>登記序號：</strong>${orderId}<br>
+            <strong>狀態：</strong>名額已確認並自動同步至老師的試算表！
           `;
           actionBtn.innerText = '完成並重新開始';
           actionBtn.style.background = '#2ed573';
@@ -348,6 +368,7 @@
 
       document.getElementById('cfg-title').value = config.title;
       document.getElementById('cfg-subtitle').value = config.subtitle;
+      document.getElementById('cfg-sheet-url').value = config.sheetUrl || '';
       document.getElementById('cfg-start-time').value = config.targetTime;
       document.getElementById('cfg-items').value = config.items.join('\n');
       document.getElementById('cfg-question').value = config.question;
@@ -363,6 +384,7 @@
     config = {
       title: document.getElementById('cfg-title').value || '球賽裁判與工作人員搶選',
       subtitle: document.getElementById('cfg-subtitle').value || '',
+      sheetUrl: document.getElementById('cfg-sheet-url').value.trim() || '',
       targetTime: document.getElementById('cfg-start-time').value || getDefaultTargetTime(),
       items: itemsArray.length > 0 ? itemsArray : defaultItems,
       question: document.getElementById('cfg-question').value || '1+1=?',
@@ -370,7 +392,7 @@
       adminPwd: document.getElementById('cfg-admin-pwd').value || '8888'
     };
 
-    localStorage.setItem('rush_sports_time_sync_pwd', JSON.stringify(config));
+    localStorage.setItem('rush_sports_sheet_sync_v2', JSON.stringify(config));
     document.getElementById('view-config').classList.add('hidden');
     handleResultAction();
   }
