@@ -64,7 +64,7 @@
   <!-- 1. 第一步：實名登記 -->
   <div id="view-auth">
     <h2>球賽裁判與工作人員搶選</h2>
-    <div class="subtitle">準點統一開搶 · 總計 18 個名額</div>
+    <div class="subtitle">準點統一開搶 · 總計 17 個名額</div>
 
     <label>學生姓名：</label>
     <input type="text" id="student-name" placeholder="請輸入姓名" autofocus />
@@ -121,15 +121,15 @@
   // =========================================================================
   // ⏰【開搶時間設定】（第 127 行）
   // =========================================================================
-  const TARGET_TIME = new Date("2026-08-19T11:46:00").getTime();
+  const TARGET_TIME = new Date("2026-08-19T10:45:00").getTime();
 
   // 🔗【試算表串接網址】（第 130 行：請確認為正式表單的 /exec 網址）
-  const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycby8S12u0fwk0EzOFYW11LzafzUqPHBWqu2AjD4cRPdv0sT7wBo1lbpzqvuswCrj3daU/exec";
+  const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbw8qx5JQKZAR1Q_Qledbq2NWifxhqaZ_jfWRDrHx7cZgEfYVyFqh0eDncw7XgWu0KHK/exec";
 
+  // 8 大項目與名額設定（總計 17 位）
   const JOBS = [
     { name: '檢錄、計分(排)', total: 3 },
     { name: '線審(排)', total: 4 },
-    { name: '租借2個記分板(排)', total: 1 },
     { name: '排球租借器材[醫藥箱、桌1椅4](申請表)', total: 1 },
     { name: '計時(籃)', total: 3 },
     { name: '檢錄、計分(籃)', total: 1 },
